@@ -16,7 +16,7 @@ int main() {
     int pixels[MAX_SIZE][MAX_SIZE];
     int size = 0;
     bool loaded = false;
-
+    FILE *file;
     int choice;
     do {
         printf("\nMenu:\n");
@@ -29,19 +29,34 @@ int main() {
 
         switch (choice) {
             case 1:
+            char filename[100];
+    printf("Enter the filename: ");
+    scanf("%s", filename);
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Failed to open the file.\n");
+        return 0;
+    }
                 loadImage(pixels, &size);
-                loaded = true;
+                //loaded = true;
                 break;
             case 2:
-                if (loaded)
-                    displayImage(pixels, size);
-                else
-                    printf("No image loaded!\n");
+                //if (loaded)
+                 for (int i = 0; i < size; i++) {
+        		for (int j = 0; j < size; j++) {
+            			printf("%d ", pixels[i][j]);
+        		}
+       	 		printf("\n");
+    		}
+                    //displayImage(pixels, size);
+               // else
+                   // printf("No image loaded!\n");
                 break;
             case 3:
-                if (loaded)
+              //  if (loaded)
                     editImage(pixels, size);
-                else
+                //lse
                     printf("No image loaded!\n");
                 break;
             case 4:
@@ -51,6 +66,7 @@ int main() {
                 printf("Invalid choice!\n");
         }
     } while (choice != 4);
+ fclose(file);
 
     return 0;
 }
@@ -58,7 +74,7 @@ int main() {
 void loadImage(int pixels[MAX_SIZE][MAX_SIZE], int *size) {
     char filename[100];
     printf("Enter the filename: ");
-    scanf("%99s", filename);
+    scanf("%s", filename);
 
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -66,17 +82,23 @@ void loadImage(int pixels[MAX_SIZE][MAX_SIZE], int *size) {
         return;
     }
 
-    fscanf(file, "%d", size);
-    for (int i = 0; i < *size; i++) {
-        for (int j = 0; j < *size; j++) {
-            fscanf(file, "%d", &pixels[i][j]);
+    int i = 0, j = 0;
+    while (fscanf(file, "%d", &pixels[i][j]) == 1) {
+        j++;
+        if (j >= MAX_SIZE) {
+            j = 0;
+            i++;
+            if (i >= MAX_SIZE) {
+                printf("Image exceeds maximum size.\n");
+                fclose(file);
+                return;
+            }
         }
     }
 
-    fclose(file);
+    *size = i;
     printf("Image loaded successfully.\n");
 }
-
 void displayImage(int pixels[MAX_SIZE][MAX_SIZE], int size) {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
@@ -127,7 +149,7 @@ void editImage(int pixels[MAX_SIZE][MAX_SIZE], int size) {
 void saveImage(int pixels[MAX_SIZE][MAX_SIZE], int size) {
     char filename[100];
     printf("Enter the filename to save: ");
-    scanf("%99s", filename);
+    scanf("%s", filename);
 
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
